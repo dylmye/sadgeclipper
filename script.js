@@ -53,7 +53,7 @@ function onClickSearch() {
 async function search() {
     if(!document.getElementById('usernames').value.length) return;
 
-    setValueSafely("search", document.getElementById("usernames"));
+    setValueSafely("search", document.getElementById("usernames").value);
 
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
