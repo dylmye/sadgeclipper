@@ -2,14 +2,17 @@ let bearer_token = "";
 let client_id = '33bst72zxflxxz5o3xrhntafqimhbh';
 let base_url = encodeURIComponent("https://dylmye.me/sadgeclipper/");
 let base_helix_url = "https://api.twitch.tv/helix/";
-const options = {
-    method: 'GET',
-    headers: new Headers({
-        'Client-ID': client_id,
-        'Authorization': `Bearer ${bearer_token}`
-    }),
-    mode: 'cors',
-};
+
+function getOptions() {
+    return {
+        method: 'GET',
+        headers: new Headers({
+            'Client-ID': client_id,
+            'Authorization': `Bearer ${bearer_token}`
+        }),
+        mode: 'cors',
+    };
+}
 
 async function getBroadcasterIds() {
     let endpoint = new URL(`${base_helix_url}users`);
@@ -17,7 +20,7 @@ async function getBroadcasterIds() {
         endpoint.searchParams.append('login', username);
     });
 
-    const fetcher = await fetch(endpoint, options);
+    const fetcher = await fetch(endpoint, getOptions());
     const res = await fetcher.json();
     if (res.error) console.error(res.message);
     return res.data.map(x => x.id);
@@ -30,7 +33,7 @@ async function getClipsForBroadcasterId(broadcasterId, from, to) {
     endpoint.searchParams.append('started_at', from);
     endpoint.searchParams.append('ended_at', to);
     
-    const fetcher = await fetch(endpoint, options);
+    const fetcher = await fetch(endpoint, getOptions());
     const res = await fetcher.json();
     if (res.error) console.error(res.message);
     return res.data;
