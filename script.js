@@ -46,6 +46,10 @@ async function getClipsForUsernames() {
     return clips;
 }
 
+function onClickSearch() {
+    search();
+}
+
 async function search() {
     if(!document.getElementById('usernames').value.length) return;
 
