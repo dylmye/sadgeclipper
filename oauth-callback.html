@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>SadgeClipper - Redirecting</title>
+        
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <main>
+            <h1 id="status" style="text-align: center;">Validating...</h1>
+        </main>
+        <script>
+            document.addEventListener("DOMContentLoaded",function() {
+                if(!Storage.length) {
+                    localStorage.setItem("accessToken", "");
+                }
+
+                if(location.hash.length) {
+                    const params = location.hash.split("&");
+                    const token = params[0].split("#access_token=")[1].replace(/\W/g, '');
+                    const tokenType = params.filter(e => e.includes("token_type"))[0].split("=")[1];
+                    if(token && tokenType === "bearer") {
+                        localStorage.setItem("accessToken", token);
+                        document.getElementById("status").value = "Redirecting you...";
+                        location.href = "index.html";
+                    }
+                    else {
+                        document.getElementById("status").value = "Couldn't log you in, please try again.";
+                        console.error(`Can't find access token with hash ${location.hash}, or token type is incorrect`);
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

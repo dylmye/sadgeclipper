@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>SadgeClipper</title>
+        
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.5/dayjs.min.js" integrity="sha512-C2m821NxMpJ4Df47O4P/17VPqt0yiK10UmGl59/e5ynRRYiCSBvy0KHJjhp2XIjUJreuR+y3SIhVyiVilhCmcQ==" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.0/cash.min.js" integrity="sha512-sgDgZX/GgfD7qSeMjPN/oE9EQgXZJW55FIjdexVT60QerG2gAWhR9QDQEGt3O90Dy9jVcwMWsoTMhLgldIiKXw==" crossorigin="anonymous"></script>
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <header>
+            <div class="topbar">
+                <h1 style="display: flex; justify-items: center;">
+                    <img src="logo.png" alt="logo" style="height: 48px; width: auto;" />
+                    SadgeClipper
+                </h1>
+                <a id="logged-out" href="#" class="submit-btn">Log in</a>
+            </div>
+            <div class="searchbar" id="searchbar">
+                <span>Enter usernames here</span>
+                <input type="text" name="usernames" id="usernames" />
+                <a href="#" onclick="search()" class="submit-btn" id="submit">Submit</a>
+            </div>
+        </header>
+        <main>
+            <ul id="clips"></ul>
+        </main>
+    </body>
+</html>
