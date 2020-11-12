@@ -54,10 +54,6 @@ header span {
     list-style: none;
 }
 
-#clips p {
-    text-align: center;
-}
-
 #clips a {
     text-decoration: none;
     font-weight: bold;
@@ -66,6 +62,14 @@ header span {
 
 #clips img {
     background-color: #fff;
+}
+
+.clip p {
+    margin: 0;
+}
+
+.clip-description {
+    margin: 2px 0;
 }
 
 .searchbar {
