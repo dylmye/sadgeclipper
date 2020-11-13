@@ -63,8 +63,10 @@ async function search() {
 
     $("#clips").empty();
     (clips || []).forEach(c => {
-        $("#clips").append(`<li class="clip"><img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" /><div class="clip-description"><p><a href="${c.url}">${c.title}</a></p><p>Clipped by ${c.creator_name} &bullet; Clipped at ${c.created_at}</p></div></li>`);
+        $("#clips").append(`<li class="clip"><img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" /><div class="clip-description"><p><a href="${c.url}">${c.title}</a></p><p>Clipped by ${c.creator_name} &bullet; Clipped at <span class="renderable-date" datetime="${c.created_at}">${c.created_at}</span></p></div></li>`);
     });
+
+    timeago().render(document.querySelectorAll('.renderable-date'));
 }
 
 function setValueSafely(key, value) {
