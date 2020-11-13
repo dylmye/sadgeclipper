@@ -46,7 +46,7 @@ header span {
     padding-left: 0;
 }
 
-#clips > li, #clips > li > img {
+#clips > li, #clips > li .clip-thumb {
     width: 100%;
 }
 
@@ -60,7 +60,7 @@ header span {
     color: #fff;
 }
 
-#clips img {
+#clips .clip-thumb {
     background-color: #fff;
 }
 
