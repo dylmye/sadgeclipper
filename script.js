@@ -79,15 +79,7 @@ function getValueSafely(key) {
     return localStorage.getItem(safeKey);
 }
 
-function setupStorage() {
-    setValueSafely("search", "");
-    setValueSafely("accessToken", "");
-}
-
-function setValues() {
-    if(getValueSafely("search") && getValueSafely("search").length) {
-        document.getElementById('usernames').value = getValueSafely("search");
-    }
+function determineVisibility() {
     bearer_token = getValueSafely("accessToken");
 
     let loginButton = document.getElementById("logged-out");
@@ -100,10 +92,22 @@ function setValues() {
     }
 }
 
+function setupStorage() {
+    setValueSafely("search", "");
+    setValueSafely("accessToken", "");
+}
+
+function setValues() {
+    if(getValueSafely("search") && getValueSafely("search").length) {
+        document.getElementById('usernames').value = getValueSafely("search");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     if(!localStorage.length) {
         setupStorage();
     } else {
         setValues();
     }
+    determineVisibility();
 });
