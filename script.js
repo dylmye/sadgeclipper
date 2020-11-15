@@ -54,10 +54,10 @@ function onClickSearch() {
 }
 
 async function search() {
-    if(!document.getElementById('usernames').value.length) return;
+    if(!$("#usernames").value.length) return;
     timeago.cancel();
 
-    setValueSafely("search", document.getElementById("usernames").value);
+    setValueSafely("search", $("#usernames").value);
 
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
@@ -70,19 +70,31 @@ async function search() {
     timeago.render(document.querySelectorAll('.renderable-date'));
 }
 
+/** Setting rules:
+ *  * Key must only contain letters a-z, A-Z
+ *  * Value must not contain = < > or &
+ */
 function setValueSafely(key, value) {
-    return localStorage.setItem(key, value);
+    const safeKey = key.replace(/[^A-Za-z]/g, '');
+    const safeVal = value.replace(/[=<>&]/g, '');
+    return localStorage.setItem(safeKey, safeVal);
 }
 
+/** Getting rules:
+ *  * Key must only contain letters a-z, A-Z
+ *  * Value must not contain = < > or &
+ */
 function getValueSafely(key) {
-    const safeKey = key.replace(/\W/g, '');
-    return localStorage.getItem(safeKey);
+    const safeKey = key.replace(/[^A-Za-z]/g, '');
+    const val = localStorage.getItem(safeKey);
+    const safeVal = val?.length && val.replace(/[=<>&]/g, '');
+    return safeVal;
 }
 
 function determineVisibility() {
     bearer_token = getValueSafely("accessToken");
 
-    let loginButton = document.getElementById("logged-out");
+    let loginButton = $("#logged-out");
     
     if(!bearer_token || !bearer_token.length) {
         loginButton.href = `https://id.twitch.tv/oauth2/authorize?client_id=${client_id}&redirect_uri=${base_url}oauth-callback.html&response_type=token&scope=user%3Aread%3Aemail&force_verify=true`;
@@ -99,7 +111,7 @@ function setupStorage() {
 
 function setValues() {
     if(getValueSafely("search") && getValueSafely("search").length) {
-        document.getElementById('usernames').value = getValueSafely("search");
+        $("#usernames").value = getValueSafely("search");
     }
 }
 
