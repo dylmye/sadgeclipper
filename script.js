@@ -54,10 +54,10 @@ function onClickSearch() {
 }
 
 async function search() {
-    if(!$("#usernames").value.length) return;
+    if(!document.getElementById('usernames').value.length) return;
     timeago.cancel();
 
-    setValueSafely("search", $("#usernames").value);
+    setValueSafely("search", document.getElementById("usernames").value);
 
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
@@ -94,7 +94,7 @@ function getValueSafely(key) {
 function determineVisibility() {
     bearer_token = getValueSafely("accessToken");
 
-    let loginButton = $("#logged-out");
+    let loginButton = document.getElementById("logged-out");
     
     if(!bearer_token || !bearer_token.length) {
         loginButton.href = `https://id.twitch.tv/oauth2/authorize?client_id=${client_id}&redirect_uri=${base_url}oauth-callback.html&response_type=token&scope=user%3Aread%3Aemail&force_verify=true`;
@@ -111,7 +111,7 @@ function setupStorage() {
 
 function setValues() {
     if(getValueSafely("search") && getValueSafely("search").length) {
-        $("#usernames").value = getValueSafely("search");
+        document.getElementById('usernames').value = getValueSafely("search");
     }
 }
 
