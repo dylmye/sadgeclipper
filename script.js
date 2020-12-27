@@ -10,11 +10,12 @@
 // globals
 let bearer_token = "";
 let client_id = "33bst72zxflxxz5o3xrhntafqimhbh"; // make sure to use your own client ID
-let base_url = encodeURIComponent("https://dylmye.me/sadgeclipper/"); // used in oauth callback
+let raw_base_url = "https://dylmye.me/sadgeclipper/";
+let base_url = encodeURIComponent(raw_base_url); // used in oauth callback
 let base_helix_url = "https://api.twitch.tv/helix/"; // change to sandbox api if needed
 let base_oauth_url = "https://id.twitch.tv/oauth2/";
 const LOGIN_URL = `${base_oauth_url}authorize?client_id=${client_id}&redirect_uri=${base_url}oauth-callback.html&response_type=token&scope=user%3Aread%3Aemail&force_verify=true`;
-const LOGOUT_URL = `${base_oauth_url}revoke?client_id=${client_id}&token=${bearer_token}`;
+const LOGOUT_URL = `${raw_base_url}logout.html`;
 
 // helpers
 /** API Action endpoints from https://dev.twitch.tv/docs/api/reference */
