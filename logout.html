@@ -32,7 +32,7 @@
             }
 
             document.addEventListener("DOMContentLoaded", function() {
-                if(!Storage.length || "accessToken" in localStorage) {
+                if("accessToken" in localStorage) {
                     console.error("couldn't find an access token in local storage")
                     // location.href = "index.html";
                     return;
