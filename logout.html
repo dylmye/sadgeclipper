@@ -30,9 +30,13 @@
                         message: null
                     };
 
-                    if (!res.ok) {
-                        const body = await r.json();
-                        res.message = body.message;
+                    if (!r.ok) {
+                        if (r.body) {
+                            const body = await r.json();
+                            res.message = body.message;
+                        } else {
+                            res.message = "unknown error";
+                        }
                     }
 
                     result = res;
