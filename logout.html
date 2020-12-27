@@ -18,6 +18,7 @@
             const client_id = "33bst72zxflxxz5o3xrhntafqimhbh"; // make sure to use your own client ID
 
             async function revokeToken(token) {
+                let returnVal;
                 const req = await fetch(
                     `${base_oauth_url}revoke?client_id=${client_id}&token=${token}`, {
                         method: "POST",
@@ -35,8 +36,10 @@
                         res.message = body.message;
                     }
 
-                    return res;
+                    returnVal = res;
                 });
+
+                return returnVal;
             }
 
             document.addEventListener("DOMContentLoaded", async function() {
