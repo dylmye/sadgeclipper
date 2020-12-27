@@ -33,10 +33,9 @@
                         const body = await r.json();
                         console.log(body);
                         res.message = body.message;
-                        return res;
-                    } else {
-                        return res;
                     }
+
+                    return res;
                 });
             }
 
@@ -48,7 +47,7 @@
                 }
 
                 const access_token = localStorage.getItem("accessToken");
-                const { success, message } = revokeToken(access_token);
+                const { success, message } = await revokeToken(access_token);
 
                 if (success) {
                     location.href = "index.html";
