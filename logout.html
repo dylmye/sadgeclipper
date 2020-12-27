@@ -25,14 +25,13 @@
                     }
                 ).then(async (r) => {
                     let res = {
-                        success: res.ok,
+                        success: r.ok,
                         message: null
                     };
 
                     if (!res.ok) {
                         const body = await r.json();
                         res.message = body.message;
-                        return res;
                     }
 
                     return res;
