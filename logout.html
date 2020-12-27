@@ -32,6 +32,7 @@
                     if (!res.ok) {
                         const body = await r.json();
                         res.message = body.message;
+                        return res;
                     }
 
                     return res;
