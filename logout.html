@@ -53,6 +53,7 @@
                 const { success, message } = res;
 
                 if (success) {
+                    localStorage.setItem("accessToken", "");
                     location.href = "index.html";
                     return;
                 } else {
