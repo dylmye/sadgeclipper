@@ -33,7 +33,8 @@
 
             document.addEventListener("DOMContentLoaded", function() {
                 if(!Storage.length || "accessToken" in localStorage) {
-                    location.href = "index.html";
+                    console.error("couldn't find an access token in local storage")
+                    // location.href = "index.html";
                     return;
                 }
 
@@ -41,7 +42,7 @@
                 const { success, message } = revokeToken(access_token);
 
                 if (success) {
-                    location.href = "index.html";
+                    // location.href = "index.html";
                     return;
                 } else {
                     document.getElementById("status").innerHTML = "Unable to log you out. Please try again.";
