@@ -47,7 +47,8 @@
                 }
 
                 const access_token = localStorage.getItem("accessToken");
-                const { success, message } = await revokeToken(access_token);
+                const res = await revokeToken(access_token);
+                const { success, message } = res;
 
                 if (success) {
                     location.href = "index.html";
