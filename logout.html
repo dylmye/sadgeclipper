@@ -31,11 +31,11 @@
 
                     if (!res.ok) {
                         const body = await r.json();
-                        debugger;
                         res.message = body.message;
+                        return res;
+                    } else {
+                        return res;
                     }
-
-                    return res;
                 });
             }
 
@@ -54,7 +54,7 @@
                     return;
                 } else {
                     document.getElementById("status").innerHTML = "Unable to log you out. Please try again.";
-                    console.error(`Couldn't revoke token: ${message}`);
+                    console.error(`!!!!Couldn't revoke token: ${message}`);
                     return;
                 }
             });
