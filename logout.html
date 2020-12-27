@@ -39,7 +39,7 @@
                 });
             }
 
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", async function() {
                 if(!("accessToken" in localStorage)) {
                     console.error("couldn't find an access token in local storage, assuming user is logged out...")
                     location.href = "index.html";
