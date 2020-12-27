@@ -18,7 +18,7 @@
             const client_id = "33bst72zxflxxz5o3xrhntafqimhbh"; // make sure to use your own client ID
 
             async function revokeToken(token) {
-                let returnVal;
+                let result;
                 const req = await fetch(
                     `${base_oauth_url}revoke?client_id=${client_id}&token=${token}`, {
                         method: "POST",
@@ -32,14 +32,13 @@
 
                     if (!res.ok) {
                         const body = await r.json();
-                        console.log(body);
                         res.message = body.message;
                     }
 
-                    returnVal = res;
+                    result = res;
                 });
 
-                return returnVal;
+                return result;
             }
 
             document.addEventListener("DOMContentLoaded", async function() {
@@ -58,7 +57,7 @@
                     return;
                 } else {
                     document.getElementById("status").innerHTML = "Unable to log you out. Please try again.";
-                    console.error(`!!!!Couldn't revoke token: ${message}`);
+                    console.error(`Couldn't revoke token: ${message}`);
                     return;
                 }
             });
