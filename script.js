@@ -94,6 +94,33 @@ const DEFAULT_SETTINGS = {
     "defaultSort": SORT_CLIPS.chronologicalDesc,
     "pageSizePerStreamer": 10,
     "daysToSearch": 7,
+    "showDownloadButton": false,
+};
+
+const SETTING_TYPES = {
+    DROPDOWN: "dropdown",
+    BINARY_RADIO: "binary_radio",
+}
+
+/** Human-friendly text for settings. False = don't show */
+const SETTING_LABELS = {
+    "settingsVersion": false,
+    "previewsOpenEmbeds": {
+        text: "Click thumbnail to play embed?",
+        type: SETTING_TYPES.BINARY_RADIO,
+    },
+    "usePrettyTimestamps": {
+        text: "Show dates relative to today?",
+        type: SETTING_TYPES.BINARY_RADIO,
+    },
+    "defaultSort": {
+        text: "Sort clips by",
+        type: SETTING_TYPES.DROPDOWN,
+        options: SORT_CLIPS
+    },
+    "pageSizePerStreamer": "How many clips to show per streamer (max)",
+    "daysToSearch": "How many days to search",
+    "showDownloadButton": false,
 };
 
 /**
@@ -154,6 +181,7 @@ function setValueSafely(key, value) {
 function getValueSafely(key) {
     const safeKey = key.replace(/[^A-Za-z]/g, '');
     const val = localStorage.getItem(safeKey);
+    if (val === null) return false;
     const safeVal = val?.length && val.replace(/[=<>&]/g, '');
     return safeVal;
 }
@@ -164,12 +192,20 @@ function getValueSafely(key) {
  * @returns {string | number | boolean} the settings value 
  */
 function getSetting(key) {
-    const settings = JSON.parse(localStorage.getItem("settings"));
+    const settings = JSON.parse(getValueSafely("settings"));
     if(!(key in settings)) {
         console.error(`Couldn't find setting: ${key}`);
         return null;
     };
     return settings[key];
+}
+
+/**
+ * Retrieve all settings
+ * @returns {*} settings object
+ */
+function getSettings() {
+    return JSON.parse(getValueSafely("settings"));
 }
 
 /**
@@ -193,7 +229,7 @@ function updateSettings(newSettings) {
         }
     });
 
-    localStorage.setItem("settings", JSON.stringify(newObj));
+    setValueSafely("settings", JSON.stringify(newObj));
 }
 
 /**
@@ -330,6 +366,10 @@ function setValues() {
 
     if(getValueSafely("search") && getValueSafely("search").length) {
         document.getElementById('usernames').value = getValueSafely("search");
+    }
+
+    if(!getValueSafely("settings")) {
+        setValueSafely("settings", JSON.stringify(DEFAULT_SETTINGS));
     }
 }
 
