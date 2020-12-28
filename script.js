@@ -58,6 +58,44 @@ const ACTIONS = {
     // WEBHOOKS: 'webhooks/subscriptions',
 };
 
+/** Sort options for Clips action */
+const SORT_CLIPS = {
+    "byStreamerDesc": "Streamer (A-Z)",
+    "byStreamerAsc": "Streamer (Z-A)",
+    "chronologicalDesc": "Day Clipped (latest first)",
+    "chronologicalAsc": "Day Clipped (earliest first)",
+};
+
+/** Pagination sizes for Get Clips action, max: 100 */
+const CLIPS_PAGE_SIZES = [
+    5,
+    10,
+    20,
+    50,
+    100
+];
+
+/** Number of days to search for with Get Clips action */
+const CLIPS_DAY_OPTIONS = [
+    5,
+    7,
+    14,
+    30
+];
+
+/** Max pagination size for Get Clips action */
+const MAX_CLIPS_PAGE_SIZE = 100;
+
+/** Default option settings */
+const DEFAULT_SETTINGS = {
+    "settingsVersion": 1.0,
+    "previewsOpenEmbeds": false,
+    "usePrettyTimestamps": true,
+    "defaultSort": SORT_CLIPS.chronologicalDesc,
+    "pageSizePerStreamer": 10,
+    "daysToSearch": 7,
+};
+
 /**
  * Creates a URL object for the API action
  * @param {string} action - should be from `ACTIONS` array
@@ -118,6 +156,44 @@ function getValueSafely(key) {
     const val = localStorage.getItem(safeKey);
     const safeVal = val?.length && val.replace(/[=<>&]/g, '');
     return safeVal;
+}
+
+/**
+ * Get a setting by its key.
+ * @param {string} key The settings key to retrieve
+ * @returns {string | number | boolean} the settings value 
+ */
+function getSetting(key) {
+    const settings = JSON.parse(localStorage.getItem("settings"));
+    if(!(key in settings)) {
+        console.error(`Couldn't find setting: ${key}`);
+        return null;
+    };
+    return settings[key];
+}
+
+/**
+ * Update the Settings object with defaults as backups
+ * @param {*} newSettings The settings object to replace the current one with
+ */
+function updateSettings(newSettings) {
+    let newObj = {};
+
+    Object.keys(DEFAULT_SETTINGS).forEach(k => {
+        if(k === "settingsVersion") {
+            // always update to the latest version as we disregard
+            // any old keys
+            newObj.settingsVersion = DEFAULT_SETTINGS.settingsVersion;
+        } else if(!(k in newSettings)) {
+            // set default value
+            newObj[k] = DEFAULT_SETTINGS[k];
+        } else {
+            // set our updated thing
+            newObj[k] = newSettings[k];
+        }
+    });
+
+    localStorage.setItem("settings", JSON.stringify(newObj));
 }
 
 /**
@@ -235,7 +311,8 @@ function setupStorage() {
     try {
         setValueSafely("search", "");
         setValueSafely("accessToken", "");
-        console.log("SadgeClipper sucessfully set up for the first time.");
+        setValueSafely("settings", JSON.stringify(DEFAULT_SETTINGS));
+        console.debug("SadgeClipper sucessfully set up for the first time.");
         return true;
     } catch (e) {
         console.error("Unable to set up SadgeClipper storage:", e);
@@ -275,6 +352,7 @@ function determineVisibility() {
     }
 }
 
+// setup on pageload
 document.addEventListener("DOMContentLoaded", function() {
     $('html').addClass ( 'dom-loaded' );
     if(!localStorage.length) {
