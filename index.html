@@ -43,7 +43,7 @@
         <header>
             <div class="topbar">
                 <h1 style="display: flex; justify-items: center;">
-                    <img src="logo.png" alt="logo" style="height: 48px; width: auto;" />
+                    <img src="logo.png" id="logo" alt="logo" />
                     SadgeClipper
                 </h1>
                 <a id="logged-out" href="#" class="submit-btn">Log in</a>
@@ -56,6 +56,10 @@
             </div>
         </header>
         <main>
+            <div id="empty-logged-out">
+                <img src="ghosty.png" aria-hidden />
+                <h2>Log in to use SadgeClipper</h2>
+            </div>
             <ul id="clips"></ul>
         </main>
 

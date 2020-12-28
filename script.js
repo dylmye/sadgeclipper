@@ -255,12 +255,14 @@ function setValues() {
 function determineVisibility() {
     let loginButton = document.getElementById("logged-out");
     let logoutButton = document.getElementById("log-out");
+    let loggedOutMessage = document.getElementById("empty-logged-out");
     
     if(!bearer_token || !bearer_token.length) {
         loginButton.href = LOGIN_URL;
         $("#searchbar").hide();
     } else {
         $(loginButton).hide();
+        $(loggedOutMessage).hide();
         logoutButton.href = LOGOUT_URL;
         $(logoutButton).show();
     }

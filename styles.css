@@ -17,6 +17,7 @@ header {
 
 main {
     margin: 0 .75rem;
+    min-height: 30rem;
 }
 
 header {
@@ -36,6 +37,11 @@ header h1 {
 
 header span {
     color: #fff;
+}
+
+#logo {
+    height: 48px;
+    width: auto;
 }
 
 #clips {
@@ -91,4 +97,18 @@ header span {
     background-color: rgba(255, 255, 255, 0.5);
     padding: 0.3rem;
     border-radius: 4px;
+}
+
+#empty-logged-out {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+    min-height: 30rem;
+}
+
+#empty-logged-out > img {
+    width: 15vw;
+    min-width: 15rem;
 }
