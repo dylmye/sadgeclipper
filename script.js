@@ -195,6 +195,13 @@ async function getClipsForUsernames() {
 }
 
 /**
+ * Sync wrapper for search() so we can use it in DOM
+ */
+function onClickSearch() {
+    search();
+}
+
+/**
  * Onclick action for search button. Calls API actions and creates DOM content for clips.
  */
 async function search() {
