@@ -168,10 +168,10 @@ async function getBroadcasterIds() {
 async function getClipsForBroadcasterId(broadcasterId, from, to) {
     let endpoint = apiUrl(ACTIONS.CLIPS);
     endpoint = setUrlSearchParams(endpoint, {
-        broadcaster_id: broadcasterId,
-        first: 10,
-        started_at: from,
-        ended_at: to,
+        "broadcaster_id": broadcasterId,
+        "first": 10,
+        "started_at": from,
+        "ended_at": to,
     });
     
     const fetcher = await fetch(endpoint, getOptions());
