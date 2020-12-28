@@ -92,7 +92,7 @@ function getOptions(method = "GET") {
  * @returns {URL} updated URL
  */
 function setUrlSearchParams(url, params) {
-    Object().keys(params).forEach(k => {
+    Object.keys(params).forEach(k => {
         url.searchParams.set(k, params[k]);
     });
 
