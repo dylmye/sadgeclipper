@@ -91,15 +91,16 @@ const DEFAULT_SETTINGS = {
     "settingsVersion": 1.0,
     "previewsOpenEmbeds": false,
     "usePrettyTimestamps": true,
-    "defaultSort": SORT_CLIPS.chronologicalDesc,
+    "defaultSort": "chronologicalDesc",
     "pageSizePerStreamer": 10,
     "daysToSearch": 7,
     "showDownloadButton": false,
 };
 
 const SETTING_TYPES = {
-    DROPDOWN: "dropdown",
     BINARY_RADIO: "binary_radio",
+    SIMPLE_DROPDOWN: "simple_dropdown",
+    DROPDOWN: "dropdown",
 }
 
 /** Human-friendly text for settings. False = don't show */
@@ -118,8 +119,16 @@ const SETTING_LABELS = {
         type: SETTING_TYPES.DROPDOWN,
         options: SORT_CLIPS
     },
-    "pageSizePerStreamer": "How many clips to show per streamer (max)",
-    "daysToSearch": "How many days to search",
+    "pageSizePerStreamer": {
+        text: "How many clips to show per streamer (max)",
+        type: SETTING_TYPES.SIMPLE_DROPDOWN,
+        options: CLIPS_PAGE_SIZES
+    },
+    "daysToSearch": {
+        text: "How many days to search",
+        type: SETTING_TYPES.SIMPLE_DROPDOWN,
+        options: CLIPS_DAY_OPTIONS
+    },
     "showDownloadButton": false,
 };
 
@@ -192,7 +201,12 @@ function getValueSafely(key) {
  * @returns {string | number | boolean} the settings value 
  */
 function getSetting(key) {
-    const settings = JSON.parse(getValueSafely("settings"));
+    const rawSettingsObj = getValueSafely("settings");
+    if (!rawSettingsObj) {
+        console.error("Couldn't load settings object as it hasn't been initalised");
+        return null;
+    }
+    const settings = JSON.parse(rawSettingsObj);
     if(!(key in settings)) {
         console.error(`Couldn't find setting: ${key}`);
         return null;
@@ -333,6 +347,76 @@ async function search() {
     timeago.render(document.querySelectorAll('.renderable-date'));
 }
 
+// settings modal
+
+function renderSetting(key, value) {
+    const labelObj = SETTING_LABELS[key];
+    const label = typeof labelObj === "object" ? labelObj.text : null;
+    if(label === null) return;
+    let formattedVal;
+    switch (labelObj.type) {
+        case (SETTING_TYPES.BINARY_RADIO): {
+            formattedVal = `<div>
+    <label><input type="radio" name="${key}" value="true"${value ? " checked" :""}>Yes</label>
+    <label><input type="radio" name="${key}" value="false"${!value ? " checked" :""}>No</label>
+</div>`;
+            break;
+        }
+        case (SETTING_TYPES.SIMPLE_DROPDOWN): {
+            const options = labelObj.options.map(o => `<option${value === o ? " selected" : ""}>${o}</option$>`);
+            formattedVal = `<select name="${key}">${options.join("\n")}\n</select>`;
+            break;
+        }
+        case (SETTING_TYPES.DROPDOWN): {
+            const options = Object.entries(labelObj.options).map(o => `<option value="${o[0]}"${value === o[0] ? " selected" : ""}>${o[1]}</option>`);
+            formattedVal = `<select name="${key}">${options.join("\n")}\n</select>`;
+            break;
+        }
+        default: {
+            formattedVal = "no!";
+            break;
+        }
+    }
+
+    return `<div class="setting-row">
+    <span class="setting-label">${label}</span>
+    <span>${formattedVal}</span>
+</div>
+`;
+}
+
+/**
+ * Populates the modal content
+ */
+function onSettingsModalOpened() {
+    $("#modal-settings-content").empty();
+    const settings = getSettings();
+    let settingElems = "";
+
+    for (const [key, value] of Object.entries(settings)) {
+        const row = renderSetting(key, value);
+        if(typeof row === "undefined") continue;
+        settingElems = settingElems + row;
+    }
+
+    $("#modal-settings-content").append(settingElems);
+}
+
+/**
+ * Saves the form content in local storage
+ */
+function onSaveSettings() {
+
+}
+
+/**
+ * Empties the modal content
+ */
+function onSettingsModalClosed() {
+    $("#modal-settings-content").empty();
+    $("#modal-settings-content").append("<p>Loading settings...</p>");
+}
+
 // initalisation
 /**
  * Create the local storage variables.
@@ -402,4 +486,15 @@ document.addEventListener("DOMContentLoaded", function() {
         setValues();
     }
     determineVisibility();
+
+    MicroModal.init({
+        onShow: onSettingsModalOpened,
+        onClose: onSettingsModalClosed,
+        openClass: 'is-open',
+        disableScroll: true,
+        disableFocus: false,
+        awaitOpenAnimation: false,
+        awaitCloseAnimation: false,
+        debugMode: false
+    });
 });

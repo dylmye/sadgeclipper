@@ -9,6 +9,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.0/cash.min.js" integrity="sha512-sgDgZX/GgfD7qSeMjPN/oE9EQgXZJW55FIjdexVT60QerG2gAWhR9QDQEGt3O90Dy9jVcwMWsoTMhLgldIiKXw==" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.9.5/dayjs.min.js" integrity="sha512-C2m821NxMpJ4Df47O4P/17VPqt0yiK10UmGl59/e5ynRRYiCSBvy0KHJjhp2XIjUJreuR+y3SIhVyiVilhCmcQ==" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js" integrity="sha512-SVDh1zH5N9ChofSlNAK43lcNS7lWze6DTVx1JCXH1Tmno+0/1jMpdbR8YDgDUfcUrPp1xyE53G42GFrcM0CMVg==" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/micromodal@0.4.6/dist/micromodal.min.js" integrity="sha512-RMMh+IHzfZLsVFo1rX9PBoysxrJJqjyOS31HYWftobWtv2At6KBTqKpvVDIWAjL5aiV+LjFqkQ6e53Rdw3VOBg==" crossorigin="anonymous"></script>
         <script src="script.js"></script>
 
         <link rel="canonical" href="https://dylmye.me/sadgeclipper/" />
@@ -40,14 +41,19 @@
         <meta name="twitter:image:alt" content="Logo for the 'Sadge Clipper' tool" />
     </head>
     <body>
-        <header>
+        <header class="global-header">
             <div class="topbar">
                 <h1 style="display: flex; justify-items: center;">
                     <img src="logo.png" id="logo" alt="logo" />
                     SadgeClipper
                 </h1>
-                <a id="logged-out" href="#" class="submit-btn">Log in</a>
-                <a id="log-out" href="#" class="submit-btn" style="display: none;">Log out</a>
+                <div style="display: flex;">
+                    <a id="settings-toggle" href="javascript:;" data-micromodal-trigger="modal-settings" class="submit-btn icon-btn">
+                        <img src="settings.svg" class="settings-icon" alt="Open settings window" />
+                    </a>
+                    <a id="logged-out" href="#" class="submit-btn">Log in</a>
+                    <a id="log-out" href="#" class="submit-btn" style="display: none;">Log out</a>
+                </div>
             </div>
             <div class="searchbar" id="searchbar">
                 <span>Enter usernames here</span>
@@ -62,6 +68,28 @@
             </div>
             <ul id="clips"></ul>
         </main>
+
+        <!-- settings modal -->
+        <div id="modal-settings" class="modal modal-settings" aria-hidden="true">
+            <div class="modal-overlay" tabindex="-1" data-micromodal-close>
+                <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+                    <header class="modal-header modal-header">
+                        <h2 id="modal-settings-title" class="modal-title">Settings</h2>
+                        <button class="modal-close" aria-label="Close the settings window" data-micromodal-close></button>
+                    </header>
+            
+                    <div id="modal-settings-content" class="modal-content">
+                        <p>Loading settings...</p>
+                    </div>
+
+                    <div class="modal__footer">
+                        <button class="modal-action-btn modal-action-btn-primary">Save</button>
+                        <button class="modal-action-btn" data-micromodal-close aria-label="Close the settings window">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+                
 
         <script async defer src="https://stats.dylmye.me/latest.js"></script>
         <noscript><img src="https://stats.dylmye.me/noscript.gif" alt=""/></noscript>
