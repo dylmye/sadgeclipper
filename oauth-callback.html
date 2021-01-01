@@ -31,6 +31,12 @@
                     return;
                 }
 
+                localforage.config({
+                    name: "SadgeClipper",
+                    description: "Keystore for SadgeClipper data",
+                    version: 2,
+                });
+
                 const grabber = grabTokenFromHash(location.hash);
                 if (!grabber) {
                     document.getElementById("status").innerHTML = notfoundHtmlText;
