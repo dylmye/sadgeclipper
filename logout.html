@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
         
         <link rel="stylesheet" href="styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.9.0/localforage.nopromises.min.js" integrity="sha512-VRdj5eNFgVor2tYXhySeq6+0xjEgE+qZvfO0kK+FZW8PJApIEfpcjEKFdwovz6tUZRsg7Xds94MaexmyRd6GCw==" crossorigin="anonymous"></script>
         
         <link rel="canonical" href="https://dylmye.me/sadgeclipper/" />
     </head>
@@ -46,19 +47,28 @@
             }
 
             document.addEventListener("DOMContentLoaded", async function() {
-                if(!("accessToken" in localStorage)) {
+                if (typeof localforage === "undefined") {
+                    console.error("Unable to authenticate: localforage is not supported by the browser (returns undefined).");
+                    return;
+                }
+
+                const keys = await localforage.keys();
+
+                if(!("accessToken" in keys)) {
                     console.error("couldn't find an access token in local storage, assuming user is logged out...")
                     location.href = "index.html";
                     return;
                 }
 
-                const access_token = localStorage.getItem("accessToken");
+                const access_token = await localforage.getItem("accessToken");
                 const res = await revokeToken(access_token);
                 const { success, message } = res;
 
                 if (success) {
                     console.debug("successfully revoked token, clearing from localStorage...");
-                    localStorage.setItem("accessToken", "");
+                    localforage.setItem("accessToken", "").catch(err => {
+                        console.log(err);
+                    });
                     location.href = "index.html";
                     return;
                 } else {

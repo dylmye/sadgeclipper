@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
         
         <link rel="stylesheet" href="styles.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.9.0/localforage.nopromises.min.js" integrity="sha512-VRdj5eNFgVor2tYXhySeq6+0xjEgE+qZvfO0kK+FZW8PJApIEfpcjEKFdwovz6tUZRsg7Xds94MaexmyRd6GCw==" crossorigin="anonymous"></script>
         
         <link rel="canonical" href="https://dylmye.me/sadgeclipper/" />
     </head>
@@ -15,17 +16,33 @@
         </main>
         <script>
             const notfoundHtmlText = 'Couldn\'t log you in, please <a href="index.html">try again</a>.';
-            document.addEventListener("DOMContentLoaded", function() {
-                if(!Storage.length) {
-                    localStorage.setItem("accessToken", "");
+
+            function grabTokenFromHash(hash) {
+                if (!hash.length) return false;
+                const params = hash.split("&");
+                const token = params[0].split("#access_token=")[1].replace(/\W/g, '');
+                const tokenType = params.filter(e => e.includes("token_type"))[0].split("=")[1];
+                return { token, tokenType };
+            }
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                if (typeof localforage === "undefined") {
+                    console.error("Unable to authenticate: localforage is not supported by the browser (returns undefined).");
+                    return;
                 }
 
-                if(location.hash.length) {
-                    const params = location.hash.split("&");
-                    const token = params[0].split("#access_token=")[1].replace(/\W/g, '');
-                    const tokenType = params.filter(e => e.includes("token_type"))[0].split("=")[1];
+                const grabber = grabTokenFromHash(location.hash);
+                if (!grabber) {
+                    document.getElementById("status").innerHTML = notfoundHtmlText;
+                    console.error("Can't find access token: no hash provided");
+                    return;
+                } else {
+                    const { token, tokenType } = grabber;
+
                     if(token && tokenType === "bearer") {
-                        localStorage.setItem("accessToken", token);
+                        await localforage.setItem("accessToken", token).catch(err => {
+                            console.log(err);
+                        });
                         document.getElementById("status").innerHTML = "Redirecting you...";
                         location.href = "index.html";
                         return;
@@ -35,10 +52,6 @@
                         console.error(`Can't find access token with hash ${location.hash}, or token type is incorrect`);
                         return;
                     }
-                } else {
-                    document.getElementById("status").innerHTML = notfoundHtmlText;
-                    console.error("Can't find access token: no hash provided");
-                    return;
                 }
             });
         </script>
