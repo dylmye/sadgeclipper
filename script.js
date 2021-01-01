@@ -4,8 +4,12 @@
  * @author dylmye
  * (c) 2020- dylan myers under ISC license
  * 
- * Depends on: cash (by Fabio Spampinato), dayjs (by iamkun), timeago.js (by Hust.cc)
+ * Depends on: cash (by Fabio Spampinato), dayjs (by iamkun),
+ * timeago.js (by Hust.cc), micromodal (by Indrashish Ghosh)
+ * and localforge (by Matthew R MacPherson & Thodoris Greasidis)
  */
+
+const SHOW_DEBUG = true;
 
 // globals
 let bearer_token = "";
@@ -17,53 +21,52 @@ let base_oauth_url = "https://id.twitch.tv/oauth2/";
 const LOGIN_URL = `${base_oauth_url}authorize?client_id=${client_id}&redirect_uri=${base_url}oauth-callback.html&response_type=token&scope=user%3Aread%3Aemail&force_verify=true`;
 const LOGOUT_URL = `${raw_base_url}logout.html`;
 
-// helpers
 /** API Action endpoints from https://dev.twitch.tv/docs/api/reference */
 const ACTIONS = {
-    USERS: 'users',
-    CLIPS: 'clips',
+    USERS: "users",
+    CLIPS: "clips",
     // keep any not in use commented out to make minified file smaller
-    // CHANNELS: 'channels',
-    // STREAMS: 'streams',
-    // GAMES: 'games',
-    // SUBS: 'subscriptions',
-    // VIDEOS: 'videos',
-    // COMMERCIAL: 'channels/commercial',
-    // ANALYTICS_EXTENSION: 'analytics/extensions',
-    // ANALYTICS_GAME: 'analytics/games',
-    // BITS_LEADERBOARD: 'bits/leaderboard',
-    // CHEERMOTES: 'bits/cheermotes',
-    // EXT_TXNS: 'extensions/transactions',
-    // POINT_REWARDS: 'channel_points/custom_rewards',
-    // POINT_REWARDS_REDEMPTIONS: 'channel_points/custom_rewards/redemptions',
-    // GRANT_DROP: 'entitlements/upload',
-    // DROP_CODES: 'entitlements/codes',
-    // ENTITLED_DROPS: 'entitlements/drops',
-    // DIRECTORY: 'games/top',
-    // SCAM_TRAIN: 'hypetrain/events',
-    // MODS: 'moderation/moderators',
-    // MOD_MSG_AUTOMOD_CHECK: 'moderation/enforcements/status',
-    // MOD_BAN_EVENTS: 'moderation/banned/events',
-    // MOD_BANS: 'moderation/banned',
-    // MOD_EVENTS: 'moderation/moderators/events',
-    // SEARCH_CATS: 'search/categories',
-    // SEARCH_CHANNELS: 'search/channels',
-    // KEY: 'streams/key',
-    // STREAM_MARKERS: 'streams/markers',
-    // STREAM_TAGS: 'streams/tags',
-    // ALL_STREAM_TAGS: 'tags/streams',
-    // FOLLOWS: 'users/follows',
-    // USER_EXTENSIONS: 'users/extensions',
-    // INSTALLED_EXTENSIONS: 'users/extensions/list',
-    // WEBHOOKS: 'webhooks/subscriptions',
+    // CHANNELS: "channels",
+    // STREAMS: "streams",
+    // GAMES: "games",
+    // SUBS: "subscriptions",
+    // VIDEOS: "videos",
+    // COMMERCIAL: "channels/commercial",
+    // ANALYTICS_EXTENSION: "analytics/extensions",
+    // ANALYTICS_GAME: "analytics/games",
+    // BITS_LEADERBOARD: "bits/leaderboard",
+    // CHEERMOTES: "bits/cheermotes",
+    // EXT_TXNS: "extensions/transactions",
+    // POINT_REWARDS: "channel_points/custom_rewards",
+    // POINT_REWARDS_REDEMPTIONS: "channel_points/custom_rewards/redemptions",
+    // GRANT_DROP: "entitlements/upload",
+    // DROP_CODES: "entitlements/codes",
+    // ENTITLED_DROPS: "entitlements/drops",
+    // DIRECTORY: "games/top",
+    // SCAM_TRAIN: "hypetrain/events",
+    // MODS: "moderation/moderators",
+    // MOD_MSG_AUTOMOD_CHECK: "moderation/enforcements/status",
+    // MOD_BAN_EVENTS: "moderation/banned/events",
+    // MOD_BANS: "moderation/banned",
+    // MOD_EVENTS: "moderation/moderators/events",
+    // SEARCH_CATS: "search/categories",
+    // SEARCH_CHANNELS: "search/channels",
+    // KEY: "streams/key",
+    // STREAM_MARKERS: "streams/markers",
+    // STREAM_TAGS: "streams/tags",
+    // ALL_STREAM_TAGS: "tags/streams",
+    // FOLLOWS: "users/follows",
+    // USER_EXTENSIONS: "users/extensions",
+    // INSTALLED_EXTENSIONS: "users/extensions/list",
+    // WEBHOOKS: "webhooks/subscriptions",
 };
 
 /** Sort options for Clips action */
 const SORT_CLIPS = {
-    "byStreamerDesc": "Streamer (A-Z)",
-    "byStreamerAsc": "Streamer (Z-A)",
-    "chronologicalDesc": "Day Clipped (latest first)",
-    "chronologicalAsc": "Day Clipped (earliest first)",
+    byStreamerDesc: "Streamer (A-Z)",
+    byStreamerAsc: "Streamer (Z-A)",
+    chronologicalDesc: "Day Clipped (latest first)",
+    chronologicalAsc: "Day Clipped (earliest first)",
 };
 
 /** Pagination sizes for Get Clips action, max: 100 */
@@ -88,13 +91,13 @@ const MAX_CLIPS_PAGE_SIZE = 100;
 
 /** Default option settings */
 const DEFAULT_SETTINGS = {
-    "settingsVersion": 1.0,
-    "previewsOpenEmbeds": false,
-    "usePrettyTimestamps": true,
-    "defaultSort": "chronologicalDesc",
-    "pageSizePerStreamer": 10,
-    "daysToSearch": 7,
-    "showDownloadButton": false,
+    settingsVersion: 1.0,
+    previewsOpenEmbeds: false,
+    usePrettyTimestamps: true,
+    defaultSort: "chronologicalDesc",
+    pageSizePerStreamer: 10,
+    daysToSearch: 7,
+    showDownloadButton: false,
 };
 
 const SETTING_TYPES = {
@@ -105,33 +108,34 @@ const SETTING_TYPES = {
 
 /** Human-friendly text for settings. False = don't show */
 const SETTING_LABELS = {
-    "settingsVersion": false,
-    "previewsOpenEmbeds": {
+    settingsVersion: false,
+    previewsOpenEmbeds: {
         text: "Click thumbnail to play embed?",
         type: SETTING_TYPES.BINARY_RADIO,
     },
-    "usePrettyTimestamps": {
+    usePrettyTimestamps: {
         text: "Show dates relative to today?",
         type: SETTING_TYPES.BINARY_RADIO,
     },
-    "defaultSort": {
+    defaultSort: {
         text: "Sort clips by",
         type: SETTING_TYPES.DROPDOWN,
         options: SORT_CLIPS
     },
-    "pageSizePerStreamer": {
+    pageSizePerStreamer: {
         text: "How many clips to show per streamer (max)",
         type: SETTING_TYPES.SIMPLE_DROPDOWN,
         options: CLIPS_PAGE_SIZES
     },
-    "daysToSearch": {
+    daysToSearch: {
         text: "How many days to search",
         type: SETTING_TYPES.SIMPLE_DROPDOWN,
         options: CLIPS_DAY_OPTIONS
     },
-    "showDownloadButton": false,
+    showDownloadButton: false,
 };
 
+// helpers
 /**
  * Creates a URL object for the API action
  * @param {string} action - should be from `ACTIONS` array
@@ -152,10 +156,10 @@ function getOptions(method = "GET") {
     return {
         method,
         headers: new Headers({
-            'Client-ID': client_id,
-            'Authorization': `Bearer ${bearer_token}`
+            "Client-ID": client_id,
+            "Authorization": `Bearer ${bearer_token}`
         }),
-        mode: 'cors',
+        mode: "cors",
     };
 }
 
@@ -177,22 +181,40 @@ function setUrlSearchParams(url, params) {
  *  * Key must only contain letters a-z, A-Z
  *  * Value must not contain = < > or &
  */
-function setValueSafely(key, value) {
+function setValueSafely(key, value, debug = SHOW_DEBUG) {
     const safeKey = key.replace(/[^A-Za-z]/g, '');
-    const safeVal = value.replace(/[=<>&]/g, '');
-    return localStorage.setItem(safeKey, safeVal);
+    const safeVal = typeof value === "string" ? value.replace(/[=<>&]/g, '') : value;
+    if (debug) console.debug(`Setting value for key ${key}:`, value);
+    return localforage.setItem(safeKey, safeVal, err => {
+        if (err) console.error(`Unable to set value '${value}' (formatted to '${safeVal}') for key '${safeKey}': ${err}`);
+    });
 }
 
 /** Getting rules:
  *  * Key must only contain letters a-z, A-Z
  *  * Value must not contain = < > or &
  */
-function getValueSafely(key) {
+async function getValueSafely(key, debug = SHOW_DEBUG) {
     const safeKey = key.replace(/[^A-Za-z]/g, '');
-    const val = localStorage.getItem(safeKey);
-    if (val === null) return false;
-    const safeVal = val?.length && val.replace(/[=<>&]/g, '');
-    return safeVal;
+    const value = await localforage.getItem(safeKey, (err, val) => {
+        if (debug) console.debug(`the value of '${key}' is`, val);
+        if (err) console.error(`Unable to get value for key ${key} (formatted to ${safeKey}): ${err}`);
+    });
+
+    return value;
+}
+
+/**
+ * Get all key-value pairs from store
+ * @param {boolean} debug
+ */
+async function getStore(debug = SHOW_DEBUG) {
+    const store = {};
+    await localforage.iterate((v, k) => {
+        store[k] = v;
+    });
+    if (debug) console.debug("the store contents are:", store);
+    return store;
 }
 
 /**
@@ -200,13 +222,12 @@ function getValueSafely(key) {
  * @param {string} key The settings key to retrieve
  * @returns {string | number | boolean} the settings value 
  */
-function getSetting(key) {
-    const rawSettingsObj = getValueSafely("settings");
-    if (!rawSettingsObj) {
+async function getSetting(key) {
+    const settings = await getValueSafely("settings");
+    if (!settings) {
         console.error("Couldn't load settings object as it hasn't been initalised");
         return null;
     }
-    const settings = JSON.parse(rawSettingsObj);
     if(!(key in settings)) {
         console.error(`Couldn't find setting: ${key}`);
         return null;
@@ -215,19 +236,13 @@ function getSetting(key) {
 }
 
 /**
- * Retrieve all settings
- * @returns {*} settings object
- */
-function getSettings() {
-    return JSON.parse(getValueSafely("settings"));
-}
-
-/**
- * Update the Settings object with defaults as backups
+ * Update the Settings object with current settings as backups
  * @param {*} newSettings The settings object to replace the current one with
  */
-function updateSettings(newSettings) {
+async function updateSettings(newSettings) {
     let newObj = {};
+
+    const current = await getValueSafely("settings");
 
     Object.keys(DEFAULT_SETTINGS).forEach(k => {
         if(k === "settingsVersion") {
@@ -236,14 +251,18 @@ function updateSettings(newSettings) {
             newObj.settingsVersion = DEFAULT_SETTINGS.settingsVersion;
         } else if(!(k in newSettings)) {
             // set default value
-            newObj[k] = DEFAULT_SETTINGS[k];
+            if (k in current) {
+                newObj[k] = current[k];
+            } else {
+                newObj[k] = DEFAULT_SETTINGS[k];
+            }
         } else {
             // set our updated thing
             newObj[k] = newSettings[k];
         }
     });
 
-    setValueSafely("settings", JSON.stringify(newObj));
+    setValueSafely("settings", newObj);
 }
 
 /**
@@ -274,8 +293,14 @@ function generateClipHtml(c) {
  */
 async function getBroadcasterIds() {
     let endpoint = apiUrl(ACTIONS.USERS);
-    (getValueSafely("search")).split(',').forEach(username => {
-        endpoint.searchParams.append('login', username);
+    const searchVal = await getValueSafely("search");
+
+    if (!searchVal || !searchVal.length) {
+        console.warning("Search value is empty; nothing to search for");
+    }
+
+    searchVal.split(',').forEach(username => {
+        endpoint.searchParams.append("login", username);
     });
 
     const fetcher = await fetch(endpoint, getOptions());
@@ -314,7 +339,7 @@ async function getClipsForUsernames() {
     const ids = await getBroadcasterIds();
 
     const now = dayjs().toISOString();
-    const sevenDaysAgo = dayjs().subtract(7, 'days').toISOString();
+    const sevenDaysAgo = dayjs().subtract(7, "days").toISOString();
 
     const clips = await Promise.all(ids.map(async i => await getClipsForBroadcasterId(i, sevenDaysAgo, now)));
     return clips;
@@ -331,10 +356,11 @@ function onClickSearch() {
  * Onclick action for search button. Calls API actions and creates DOM content for clips.
  */
 async function search() {
-    if(!document.getElementById('usernames').value.length) return;
+    $("#loader").show();
+    if(!$("#usernames").val().length) return;
     timeago.cancel();
 
-    setValueSafely("search", document.getElementById("usernames").value);
+    await setValueSafely("search", $("#usernames").val());
 
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
@@ -344,7 +370,8 @@ async function search() {
         $("#clips").append(generateClipHtml(c));
     });
 
-    timeago.render(document.querySelectorAll('.renderable-date'));
+    timeago.render(document.querySelectorAll(".renderable-date"));
+    $("#loader").hide();
 }
 
 // settings modal
@@ -388,9 +415,9 @@ function renderSetting(key, value) {
 /**
  * Populates the modal content
  */
-function onSettingsModalOpened() {
+async function onSettingsModalOpened() {
     $("#modal-settings-content").empty();
-    const settings = getSettings();
+    const settings = await getValueSafely("settings");
     let settingElems = "";
 
     for (const [key, value] of Object.entries(settings)) {
@@ -406,7 +433,12 @@ function onSettingsModalOpened() {
  * Saves the form content in local storage
  */
 function onSaveSettings() {
+    const form = new FormData(document.getElementById("modal-settings-form"));
+    const updatedFields = form.entries();
+    let extractedFields = {};
 
+    updateSettings(extractedFields);
+    MicroModal.close("modal-settings");
 }
 
 /**
@@ -419,19 +451,36 @@ function onSettingsModalClosed() {
 
 // initalisation
 /**
- * Create the local storage variables.
- * Throws an error if localStorage API is unavailable.
- * @returns {boolean} whether localStorage was set up successfully
+ * Set up localforage and determine how many keys are in the local store
+ * @returns {boolean} If localforage is set up
  */
-function setupStorage() {
-    if (typeof localStorage === "undefined") {
-        console.error("Unable to set up SadgeClipper storage: localStorage is not supported by the browser (returns undefined).");
+function getForageState() {
+    if (typeof localforage === "undefined") {
+        console.error("Unable to set up SadgeClipper storage: localforage is not supported by the browser (returns undefined).");
         return false;
     }
+
+    localforage.config({
+        name: "SadgeClipper",
+        description: "Keystore for SadgeClipper data",
+        version: 2,
+    });
+
+    return localforage.length().then(l => {
+        return l > 0;
+    })
+}
+
+/**
+ * Create the local storage variables.
+ * Throws an error if localforage failed.
+ * @returns {boolean} whether localforage was set up successfully
+ */
+function setupStorage() {
     try {
         setValueSafely("search", "");
         setValueSafely("accessToken", "");
-        setValueSafely("settings", JSON.stringify(DEFAULT_SETTINGS));
+        setValueSafely("settings", DEFAULT_SETTINGS);
         console.debug("SadgeClipper sucessfully set up for the first time.");
         return true;
     } catch (e) {
@@ -441,50 +490,56 @@ function setupStorage() {
 }
 
 /**
- * Set bearer token and filters in DOM from localStorage
+ * Set bearer token and filters in DOM from localforage
  */
-function setValues() {
-    if(getValueSafely("accessToken") && getValueSafely("accessToken").length) {
-        bearer_token = getValueSafely("accessToken");
+async function setValues() {
+    const store = await getStore();
+
+    if(store.accessToken && store.accessToken.length) {
+        bearer_token = store.accessToken;
     }
 
-    if(getValueSafely("search") && getValueSafely("search").length) {
-        document.getElementById('usernames').value = getValueSafely("search");
+    if(store.search && store.search.length) {
+        $("#usernames").val(store.search);
     }
 
-    if(!getValueSafely("settings")) {
-        setValueSafely("settings", JSON.stringify(DEFAULT_SETTINGS));
+    if(!store.settings) {
+        setValueSafely("settings", DEFAULT_SETTINGS);
     }
 }
 
 /**
  * Determine whether to show or hide the login and search elements in DOM.
  */
-function determineVisibility() {
-    let loginButton = document.getElementById("logged-out");
-    let logoutButton = document.getElementById("log-out");
-    let loggedOutMessage = document.getElementById("empty-logged-out");
+async function determineVisibility() {
+    let loginButton = $("#logged-out");
+    let logoutButton = $("#log-out");
+    let loggedOutMessage = $("#empty-logged-out");
     
     if(!bearer_token || !bearer_token.length) {
-        loginButton.href = LOGIN_URL;
+        loginButton.attr("href", LOGIN_URL);
         $("#searchbar").hide();
     } else {
-        $(loginButton).hide();
-        $(loggedOutMessage).hide();
-        logoutButton.href = LOGOUT_URL;
-        $(logoutButton).show();
+        loginButton.hide();
+        loggedOutMessage.hide();
+        logoutButton.attr("href", LOGOUT_URL);
+        logoutButton.show();
     }
 }
 
 // setup on pageload
-document.addEventListener("DOMContentLoaded", function() {
-    $('html').addClass ( 'dom-loaded' );
-    if(!localStorage.length) {
+document.addEventListener("DOMContentLoaded", async () => {
+    $("html").addClass("dom-loaded");
+
+    let isSetUp = await getForageState();
+
+    if(!isSetUp) {
         const successful = setupStorage();
         if (!successful) return;
     } else {
-        setValues();
+        await setValues();
     }
+
     determineVisibility();
 
     MicroModal.init({
@@ -497,4 +552,6 @@ document.addEventListener("DOMContentLoaded", function() {
         awaitCloseAnimation: false,
         debugMode: false
     });
+
+    $("#loader").hide();
 });
