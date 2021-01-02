@@ -261,15 +261,13 @@ from { transform: translateY(15%); }
     margin-left: 1rem;
 }
 
-@media screen and (max-width: 852px) {
-    .clip-iframe {
-        position: relative;
-        padding-bottom: 56.25%; /* 16:9 aspect */
-    }
+.clip-iframe {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect */
+}
 
-    .clip-iframe iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
+.clip-iframe iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
