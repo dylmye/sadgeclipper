@@ -10,6 +10,7 @@
  */
 
 const SHOW_DEBUG = false;
+const SADGE_VER = 1.1;
 
 // globals
 let bearer_token = "";
@@ -108,7 +109,7 @@ const SETTING_TYPES = {
 
 /** Human-friendly text for settings. False = don't show */
 const SETTING_LABELS = {
-    settingsVersion: false,
+    settingsVersion: false, // internal value for versioning
     previewsOpenEmbeds: {
         text: "Click thumbnail to play embed?",
         type: SETTING_TYPES.BINARY_RADIO,
@@ -117,11 +118,12 @@ const SETTING_LABELS = {
         text: "Show dates relative to today?",
         type: SETTING_TYPES.BINARY_RADIO,
     },
-    defaultSort: {
-        text: "Sort clips by",
-        type: SETTING_TYPES.DROPDOWN,
-        options: SORT_CLIPS
-    },
+    defaultSort: false,
+    // defaultSort: {
+    //     text: "Sort clips by",
+    //     type: SETTING_TYPES.DROPDOWN,
+    //     options: SORT_CLIPS
+    // },
     pageSizePerStreamer: {
         text: "How many clips to show per streamer (max)",
         type: SETTING_TYPES.SIMPLE_DROPDOWN,
@@ -133,6 +135,10 @@ const SETTING_LABELS = {
         options: CLIPS_DAY_OPTIONS
     },
     showDownloadButton: false,
+    // showDownloadButton: {
+    //     text: "Show download button?",
+    //     type: SETTING_TYPES.BINARY_RADIO,
+    // },
 };
 
 // helpers
@@ -258,7 +264,13 @@ async function updateSettings(newSettings) {
             }
         } else {
             // set our updated thing
-            newObj[k] = newSettings[k];
+            if (newSettings[k] === "false" || newSettings[k] === "true") {
+                newObj[k] = newSettings[k] === "true";
+            } else if (!isNaN(newSettings[k])) {
+                newObj[k] = parseInt(newSettings[k]);
+            } else {
+                newObj[k] = newSettings[k];
+            }
         }
     });
 
@@ -275,8 +287,8 @@ function generateClipHtml(c, { previewsOpenEmbeds }) {
     return `
 <li class="clip" id="clip-${c.id}">
     <div class="clip-container">
-        <a href="${!!previewsOpenEmbeds ? c.url : '#'}">
-            <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb"${!previewsOpenEmbeds ? `onClick="openEmbed('${c.id}')"` : ''} />
+        <a href="${!previewsOpenEmbeds ? c.url : '#'}">
+            <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb"${previewsOpenEmbeds ? `onClick="openEmbed('${c.id}')"` : ''} />
         </a>
     </div>
     <div class="clip-description">
@@ -288,6 +300,10 @@ function generateClipHtml(c, { previewsOpenEmbeds }) {
 </li>`;
 }
 
+/**
+ * Replace image with iframe
+ * @param {string} clipId - the clip to replace image with iframe
+ */
 function openEmbed(clipId) {
     $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe>`);
 }
@@ -324,10 +340,12 @@ async function getBroadcasterIds() {
  * @returns {any[]} clips for requested streamer with filters applied 
  */
 async function getClipsForBroadcasterId(broadcasterId, from, to) {
+    const pageSize = await getSetting("pageSizePerStreamer");
+
     let endpoint = apiUrl(ACTIONS.CLIPS);
     endpoint = setUrlSearchParams(endpoint, {
         "broadcaster_id": broadcasterId,
-        "first": 10,
+        "first": pageSize,
         "started_at": from,
         "ended_at": to,
     });
@@ -345,10 +363,12 @@ async function getClipsForBroadcasterId(broadcasterId, from, to) {
 async function getClipsForUsernames() {
     const ids = await getBroadcasterIds();
 
-    const now = dayjs().toISOString();
-    const sevenDaysAgo = dayjs().subtract(7, "days").toISOString();
+    const daysToSearch = await getSetting("daysToSearch");
 
-    const clips = await Promise.all(ids.map(async i => await getClipsForBroadcasterId(i, sevenDaysAgo, now)));
+    const now = dayjs().toISOString();
+    const fromDate = dayjs().subtract(daysToSearch, "days").toISOString();
+
+    const clips = await Promise.all(ids.map(async i => await getClipsForBroadcasterId(i, fromDate, now)));
     return clips;
 }
 
@@ -374,17 +394,31 @@ async function search() {
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
 
+    const noResElem = $("#empty-no-results").hide();
+
+    if (!clips?.length) {
+        noResElem.css('display', 'flex');
+    } else {
+        noResElem.hide();
+    }
+    
     $("#clips").empty();
     (clips || []).forEach(c => {
         $("#clips").append(generateClipHtml(c, store.settings));
     });
 
-    timeago.render(document.querySelectorAll(".renderable-date"));
+    store.settings.usePrettyTimestamps && clips?.length && timeago.render(document.querySelectorAll(".renderable-date"));
     $("#loader").hide();
 }
 
 // settings modal
 
+/**
+ * Render a key-value pair
+ * @param {string} key The key to render
+ * @param {string} value The value currently selected
+ * @returns {string} The key-value pair rendered
+ */
 function renderSetting(key, value) {
     const labelObj = SETTING_LABELS[key];
     const label = typeof labelObj === "object" ? labelObj.text : null;
@@ -435,6 +469,10 @@ async function onSettingsModalOpened() {
         settingElems = settingElems + row;
     }
 
+    const credits = `<div class="credit-row"><p>SadgeClipper version ${SADGE_VER} by <a href="https://dylmye.me">dylmye</a></p></div>`;
+
+    settingElems = settingElems + credits;
+
     $("#modal-settings-content").append(settingElems);
 }
 
@@ -445,6 +483,10 @@ function onSaveSettings() {
     const form = new FormData(document.getElementById("modal-settings-form"));
     const updatedFields = form.entries();
     let extractedFields = {};
+
+    for (const [key, value] of updatedFields) {
+        extractedFields[key] = value;
+    }
 
     updateSettings(extractedFields);
     MicroModal.close("modal-settings");
