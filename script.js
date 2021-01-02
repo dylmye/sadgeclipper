@@ -9,7 +9,7 @@
  * and localforge (by Matthew R MacPherson & Thodoris Greasidis)
  */
 
-const SHOW_DEBUG = true;
+const SHOW_DEBUG = false;
 
 // globals
 let bearer_token = "";
@@ -268,13 +268,14 @@ async function updateSettings(newSettings) {
 /**
  * Returns the filled HTML template for a given clip
  * @param {*} c - the clip to create HTML for
+ * @param {*} settings - settings object
  * @returns {string} the HTMl for given clip
  */
-function generateClipHtml(c) {
+function generateClipHtml(c, { previewsOpenEmbeds }) {
     return `
-<li class="clip">
-    <a href="${c.url}">
-        <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb" />
+<li class="clip" id="clip-${c.id}">
+    <a href="${!!previewsOpenEmbeds ? c.url : '#'}">
+        <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb"${!previewsOpenEmbeds ? `onClick="openEmbed('${c.id}')"` : ''} />
     </a>
     <div class="clip-description">
         <p><a href="${c.url}">${c.title}</a></p>
@@ -283,6 +284,10 @@ function generateClipHtml(c) {
         </p>
     </div>
 </li>`;
+}
+
+function openEmbed(clipId) {
+    $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe>`);
 }
 
 // action code
@@ -362,12 +367,14 @@ async function search() {
 
     await setValueSafely("search", $("#usernames").val());
 
+    const store = await getStore();
+
     let clips = await getClipsForUsernames();
     clips = [].concat.apply([], clips);
 
     $("#clips").empty();
     (clips || []).forEach(c => {
-        $("#clips").append(generateClipHtml(c));
+        $("#clips").append(generateClipHtml(c, store.settings));
     });
 
     timeago.render(document.querySelectorAll(".renderable-date"));
