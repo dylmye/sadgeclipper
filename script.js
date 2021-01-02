@@ -287,7 +287,7 @@ function generateClipHtml(c, { previewsOpenEmbeds }) {
 }
 
 function openEmbed(clipId) {
-    $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe>`);
+    $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<div class="clip-iframe"><iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe></div>`);
 }
 
 // action code
