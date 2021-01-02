@@ -274,9 +274,11 @@ async function updateSettings(newSettings) {
 function generateClipHtml(c, { previewsOpenEmbeds }) {
     return `
 <li class="clip" id="clip-${c.id}">
-    <a href="${!!previewsOpenEmbeds ? c.url : '#'}">
-        <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb"${!previewsOpenEmbeds ? `onClick="openEmbed('${c.id}')"` : ''} />
-    </a>
+    <div class="clip-container">
+        <a href="${!!previewsOpenEmbeds ? c.url : '#'}">
+            <img src="${c.thumbnail_url}" alt="Thumbnail of a clip of ${c.broadcaster_name}'s stream" class="clip-thumb"${!previewsOpenEmbeds ? `onClick="openEmbed('${c.id}')"` : ''} />
+        </a>
+    </div>
     <div class="clip-description">
         <p><a href="${c.url}">${c.title}</a></p>
         <p>
@@ -287,7 +289,7 @@ function generateClipHtml(c, { previewsOpenEmbeds }) {
 }
 
 function openEmbed(clipId) {
-    $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<div class="clip-iframe"><iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe></div>`);
+    $(`#clip-${clipId} img.clip-thumb`).replaceWith(`<iframe src="https://clips.twitch.tv/embed?clip=${clipId}&parent=dylmye.me" frameborder="0" allowfullscreen="true" scrolling="no" height="100%" width="100%"></iframe>`);
 }
 
 // action code

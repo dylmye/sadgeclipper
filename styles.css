@@ -52,10 +52,12 @@ main {
     column-gap: .75rem;
     row-gap: .5rem;
     padding-left: 0;
+    width: 100%;
 }
 
 #clips > li, #clips > li .clip-thumb {
     width: 100%;
+    max-width: calc(100vw - 1.25rem);
 }
 
 #clips > li {
@@ -86,6 +88,7 @@ main {
 .searchbar {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .searchbar > input {
@@ -261,13 +264,19 @@ from { transform: translateY(15%); }
     margin-left: 1rem;
 }
 
-.clip-iframe {
+.clip-container {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 aspect */
 }
 
-.clip-iframe iframe {
+.clip-container iframe, .clip-container img {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.clip-container a {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
