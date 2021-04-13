@@ -9,7 +9,7 @@
  * and localforge (by Matthew R MacPherson & Thodoris Greasidis)
  */
 
-const SHOW_DEBUG = true;
+const SHOW_DEBUG = false;
 const base_oauth_url = "https://id.twitch.tv/oauth2/";
 const client_id = "33bst72zxflxxz5o3xrhntafqimhbh"; // make sure to use your own client ID
 
@@ -83,13 +83,14 @@ document.addEventListener(
 
     if (!isSetUp) return;
 
+    /** @type {string[]} */
     const localKeys = await localforage.keys();
 
-    if (!("accessToken" in localKeys)) {
+    if (!localKeys.includes("accessToken")) {
       console.error(
         "couldn't find an access token in local storage, assuming user is logged out..."
       );
-      SHOW_DEBUG && console.debug(localKeys, "accessToken" in localKeys, localKeys.includes("accessToken"));
+      SHOW_DEBUG && console.debug(localKeys);
       location.href = "index.html";
       return;
     }
