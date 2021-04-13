@@ -89,7 +89,7 @@ document.addEventListener(
       console.error(
         "couldn't find an access token in local storage, assuming user is logged out..."
       );
-      SHOW_DEBUG && console.debug(localKeys);
+      SHOW_DEBUG && console.debug(localKeys, "accessToken" in localKeys, localKeys.includes("accessToken"));
       location.href = "index.html";
       return;
     }
